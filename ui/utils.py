@@ -1,7 +1,9 @@
-import json
+import hashlib
 import re
+import urllib
+
 from ui import app, db
-from models.models import Job
+from models.models import Job, ApiKeys
 
 
 def search(find_crc):
@@ -44,10 +46,16 @@ def post(api_key, crc, title, year, video_type, imdb, tmdb, omdb, hasnicetitle, 
     # TODO: check for a valid api_key from the table
     if api_key is None or api_key == "":
         return {'success': False, 'mode': 'post', "Error": "Not authorised"}
+
+    valid = db.session.query(ApiKeys).filter_by(key=api_key).first()
+    if not bool(valid):
+        return {'success': False, 'mode': 'post', "Error": "Not Authorised"}
+
     # Find any crc matching what the user gave us
     posts = db.session.query(Job).filter_by(crc_id=crc).first()
     if bool(posts):
         return {'success': False, 'mode': 'post', "Error": "DVD with that CRC64 exists"}
+
     # Make sure we have enough to add to the db
     if crc is None or title is None or year is None:
         return {'success': False, 'mode': 'post', "Error": "Not enough information"}
@@ -73,3 +81,33 @@ def post(api_key, crc, title, year, video_type, imdb, tmdb, omdb, hasnicetitle, 
     except Exception:
         success = False
     return {'success': success, 'mode': 'search', 'results': x}
+
+
+def request_key(email):
+    # TODO: api_key should be send to the email address
+    #  displaying it in browser allows the system to be easily manipulated
+    x = hashlib.sha224(email.encode('utf-8')).hexdigest()
+    api_key = ApiKeys(x)
+    db.session.add(api_key)
+    try:
+        db.session.commit()
+        success = True
+    except Exception:
+        success = False
+    return {'success': success, 'mode': 'Request key', "api_key": x}
+
+
+def fetch_url(url):
+    """Naive URL fetch."""
+    fp = urllib.request.urlopen(url)
+    s = fp.read().decode("utf8")
+    return s
+
+
+def get_burner_email_domains():
+    """Using well maintained list of burner domains.
+    This will drop Mailinator etc and all.
+    """
+    url = "https://raw.githubusercontent.com/wesbos/burner-email-providers/master/emails.txt"
+    s = fetch_url(url)
+    return s.split('\n')

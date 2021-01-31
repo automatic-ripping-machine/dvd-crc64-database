@@ -60,3 +60,19 @@ class Job(db.Model):
 
     def __repr__(self):
         return '<Job {}>'.format(self.label)
+
+
+class ApiKeys(db.Model):
+    user_id = db.Column(db.Integer, primary_key=True)
+    key = db.Column(db.String(256), unique=True)
+
+    def __init__(self, key):
+        """Return a disc object"""
+        self.key = key
+
+    def __str__(self):
+        """Returns a string of the object"""
+        return ""
+
+    def __repr__(self):
+        return '<Job {}>'.format(self.user_id)
