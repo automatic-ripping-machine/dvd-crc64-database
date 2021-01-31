@@ -20,6 +20,19 @@ def feed_json():
     if x == "s":
         app.logger.debug("search")
         j = utils.search(crc64)
+    elif x == "p":
+        api_key = request.args.get('api_key')
+        title = request.args.get('t')
+        year = request.args.get('y')
+        video_type = request.args.get('vt')
+        imdb = request.args.get('imdb')
+        tmdb = request.args.get('tmdb')
+        omdb = request.args.get('omdb')
+        hasnicetitle = request.args.get('hnt')
+        disctype = request.args.get('dt')  # not needed
+        label = request.args.get('l')
+        app.logger.debug("post")
+        j = utils.post(api_key, crc64, title, year, video_type, imdb, tmdb, omdb, hasnicetitle, disctype, label)
     else:
         return {'success': False, 'message': 'nothing here'}
     return app.response_class(response=json.dumps(j, indent=4, sort_keys=True),
