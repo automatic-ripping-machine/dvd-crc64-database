@@ -7,6 +7,6 @@ from flask.logging import default_handler  # noqa: F401
 app = Flask(__name__)
 
 b = os.getcwd()
-sqlitefile = 'sqlite:///' + b + "\\arm-crc64.db"
+sqlitefile = 'sqlite:///' + b + "/arm-crc64.db"
 app.config['SQLALCHEMY_DATABASE_URI'] = sqlitefile
 db = SQLAlchemy(app)
