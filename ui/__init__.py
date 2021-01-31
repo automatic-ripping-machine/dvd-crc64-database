@@ -8,5 +8,6 @@ app = Flask(__name__)
 
 b = os.getcwd()
 sqlitefile = 'sqlite:///' + b + "/arm-crc64.db"
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = sqlitefile
 db = SQLAlchemy(app)
