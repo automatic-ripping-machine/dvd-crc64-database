@@ -3,7 +3,6 @@ import bcrypt  # noqa: F401
 
 from flask import Flask, logging, current_app  # noqa: F401
 from flask_sqlalchemy import SQLAlchemy
-from config.config import cfg
 from flask.logging import default_handler  # noqa: F401
 app = Flask(__name__)
 
