@@ -4,8 +4,11 @@ from email.utils import parseaddr
 import ui.utils as utils
 from flask import Flask, render_template, make_response, abort, request, \
     redirect, url_for  # noqa: F401
+from models.models import Job, ApiKeys
 from ui import app, db
 from models.models import Job
+
+OMDB_API_KEY = ""
 
 
 @app.route('/error')
@@ -18,9 +21,7 @@ def was_error(e):
 def feed_json():
     x = request.args.get('mode')
     crc64 = request.args.get('crc64')
-    app.logger.debug(crc64)
     if x == "s":
-        app.logger.debug("search")
         j = utils.search(crc64)
     elif x == "p":
         api_key = request.args.get('api_key')
@@ -47,6 +48,8 @@ def feed_json():
             j = utils.request_key(email)
         else:
             j = {'success': False, 'message': 'email isn\'t valid'}
+    elif x == "latest":
+        j = utils.get_latest()
     else:
         return {'success': False, 'message': 'nothing here'}
 
@@ -68,3 +71,24 @@ def home():
     # app.logger.debug('DEBUGGING')
     # app.logger.error('ERROR Inside /logreader')
     return render_template('index.html')
+
+
+@app.route('/fix')
+def fix_db():
+    # Used to fix bad entries - temp fix
+    return {}
+    c = db.session.query(Job).order_by(Job.job_id.desc())
+    json_return = {}
+    i = 0
+    for job in c:
+        job_json = utils.call_omdb_api(OMDB_API_KEY, job.title, job.year, job.imdb_id)
+        if job_json:
+            job.disctype = "dvd"
+            job.poster_img = job_json['Poster']
+            job.video_type = job_json['Type']
+            db.session.commit()
+        json_return[i] = job_json
+        i += 1
+    return app.response_class(response=json.dumps(json_return, indent=4, sort_keys=True),
+                              status=200,
+                              mimetype="application/json")

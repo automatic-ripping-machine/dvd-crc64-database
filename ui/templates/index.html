@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 {% block title %}Home{% endblock %}
-{% block head_extra %}<meta http-equiv="refresh" content="30">{% endblock %}
 
 {% block nav %}{{ super() }}{% endblock %}
 
@@ -15,7 +14,9 @@ div.card-body button,div.card-body a{
         <div class="col-sm-12 rounded text-center">
             <img src="/static/img/arm80.png">
             <p class="text-center">
-				<h2>Welcome to your Automatic Ripping Machine</h2>
+				<h2>Welcome to your Automatic Ripping Machine CRC64 database API</h2>
+				Search access to the database doesn't require an api key.
+				Only adding to the database requires a key.
             </p>
         </div>
     </div>
